@@ -180,9 +180,10 @@ impl StudioState {
                     ui.add_space(8.0);
                     ui.label("Size / Scale (Width, Height, Depth):");
                     ui.horizontal(|ui| {
-                        ui.add(egui::DragValue::new(&mut part.scale[0]).speed(0.1).prefix("X: ").clamp_range(0.01..=f32::MAX));
-                        ui.add(egui::DragValue::new(&mut part.scale[1]).speed(0.1).prefix("Y: ").clamp_range(0.01..=f32::MAX));
-                        ui.add(egui::DragValue::new(&mut part.scale[2]).speed(0.1).prefix("Z: ").clamp_range(0.01..=f32::MAX));
+                        // FIXED WARNINGS: Replaced obsolete `.clamp_range` with modern `.range`
+                        ui.add(egui::DragValue::new(&mut part.scale[0]).speed(0.1).prefix("X: ").range(0.01..=f32::MAX));
+                        ui.add(egui::DragValue::new(&mut part.scale[1]).speed(0.1).prefix("Y: ").range(0.01..=f32::MAX));
+                        ui.add(egui::DragValue::new(&mut part.scale[2]).speed(0.1).prefix("Z: ").range(0.01..=f32::MAX));
                     });
 
                     ui.add_space(8.0);
@@ -246,9 +247,10 @@ impl StudioState {
                 ui.add_space(8.0);
                 ui.label("Baseplate Scale (Width, Height, Depth):");
                 ui.horizontal(|ui| {
-                    ui.add(egui::DragValue::new(&mut self.baseplate_scale[0]).speed(0.5).prefix("X: ").clamp_range(1.0..=f32::MAX));
-                    ui.add(egui::DragValue::new(&mut self.baseplate_scale[1]).speed(0.1).prefix("Y: ").clamp_range(0.1..=f32::MAX));
-                    ui.add(egui::DragValue::new(&mut self.baseplate_scale[2]).speed(0.5).prefix("Z: ").clamp_range(1.0..=f32::MAX));
+                    // FIXED WARNINGS: Replaced obsolete `.clamp_range` with modern `.range`
+                    ui.add(egui::DragValue::new(&mut self.baseplate_scale[0]).speed(0.5).prefix("X: ").range(1.0..=f32::MAX));
+                    ui.add(egui::DragValue::new(&mut self.baseplate_scale[1]).speed(0.1).prefix("Y: ").range(0.1..=f32::MAX));
+                    ui.add(egui::DragValue::new(&mut self.baseplate_scale[2]).speed(0.5).prefix("Z: ").range(1.0..=f32::MAX));
                 });
 
                 ui.add_space(8.0);
