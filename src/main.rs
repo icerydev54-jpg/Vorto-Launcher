@@ -2,12 +2,12 @@
 mod studio;
 
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
+// REMOVED: unused PrimaryWindow import to resolve compiler warning
 use bevy_egui::{egui, EguiContexts, EguiPlugin};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use studio::{Material, Part, SavedGame, StudioState};
-use chrono::Local; // <--- Used to get the actual local date of your PC
+use chrono::Local;
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
 enum AppFlowState {
@@ -553,8 +553,10 @@ fn draw_2d_interface(
                         ui.horizontal(|ui| {
                             ui.add(egui::TextEdit::singleline(&mut state.new_server_name).hint_text("New group / server name..."));
                             if ui.button("➕ Create Group").clicked() {
-                                if !state.new_server_name.trim().is_empty() {
-                                    state.created_servers.push(state.new_server_name.clone());
+                                // FIXED BORROW ERROR: Store cloned field string prior to pushing to self
+                                let s_name = state.new_server_name.trim().to_string();
+                                if !s_name.is_empty() {
+                                    state.created_servers.push(s_name);
                                     state.new_server_name.clear();
                                 }
                             }
@@ -601,7 +603,6 @@ fn draw_2d_interface(
             egui::TopBottomPanel::top("studio_top_bar").show(ctx, |ui| {
                 egui::menu::bar(ui, |ui| {
                     ui.menu_button("File", |ui| {
-                        // Manual Quick Save (No popups, automatically gets current date)
                         if ui.button("💾 Quick Save (Ctrl+S)").clicked() {
                             manual_save_current_studio(&mut state);
                             ui.close_menu();
@@ -649,7 +650,6 @@ fn draw_2d_interface(
 
             if exit_studio || force_save_recents {
                 let mut recents = state.recents.clone();
-                // Get actual current calendar date dynamically using Chrono!
                 let date = Local::now().format("%Y-%m-%d").to_string();
                 let current_game = SavedGame {
                     name: state.studio.current_game_name.clone(),
@@ -777,7 +777,6 @@ fn handle_studio_hotkeys(
     let studio = &mut state.studio;
     let ctrl_held = keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight);
 
-    // 1. DUPLICATE: Ctrl + D
     if ctrl_held && keys.just_pressed(KeyCode::KeyD) {
         if let Some(selected_id) = studio.selected_part_id {
             if let Some(part) = studio.parts.iter().find(|p| p.id == selected_id).cloned() {
@@ -797,15 +796,12 @@ fn handle_studio_hotkeys(
         }
     }
 
-    // 2. QUICK SAVE: Ctrl + S
     if ctrl_held && keys.just_pressed(KeyCode::KeyS) {
         manual_save_current_studio(&mut state);
     }
 }
 
-// Manually save the currently open studio session instantly with real-world calendar date
 fn manual_save_current_studio(state: &mut VortoSystemState) {
-    // Dynamically fetches current local computer date on save!
     let date = Local::now().format("%Y-%m-%d").to_string();
     let current_game = SavedGame {
         name: state.studio.current_game_name.clone(),
